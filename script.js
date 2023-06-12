@@ -1,5 +1,7 @@
-const cards = document.querySelectorAll('.memory-card');
-const timerElement = document.getElementById('timer');
+const cards = $('.memory-card');
+const timerElement = $('#timer');
+const messageElement = $('#message');
+const resetButton = $('#reset-button');
 
 let hasFlippedCard = false;
 let lockBoard = false;
@@ -9,8 +11,8 @@ let seconds = 0;
 
 function flipCard() {
   if (lockBoard || this === firstCard) return;
-  
-  this.classList.add('flip');
+
+  $(this).addClass('flip');
 
   if (!hasFlippedCard) {
     hasFlippedCard = true;
@@ -24,13 +26,13 @@ function flipCard() {
 }
 
 function checkForMatch() {
-  let isMatch = firstCard.dataset.framework === secondCard.dataset.framework;
+  let isMatch = $(firstCard).data('framework') === $(secondCard).data('framework');
   isMatch ? disableCards() : unflipCards();
 }
- 
+
 function disableCards() {
-  firstCard.removeEventListener('click', flipCard);
-  secondCard.removeEventListener('click', flipCard);
+  $(firstCard).off('click', flipCard);
+  $(secondCard).off('click', flipCard);
 
   resetBoard();
   checkWin();
@@ -38,8 +40,8 @@ function disableCards() {
 
 function unflipCards() {
   setTimeout(() => {
-    firstCard.classList.remove('flip');
-    secondCard.classList.remove('flip');
+    $(firstCard).removeClass('flip');
+    $(secondCard).removeClass('flip');
     resetBoard();
   }, 1500);
 }
@@ -53,7 +55,13 @@ function startTimer() {
   if (!timerInterval) {
     timerInterval = setInterval(() => {
       seconds++;
-      timerElement.textContent = seconds;
+      timerElement.text(formatTime(seconds));
+
+      if (seconds >= 60) {
+        stopTimer();
+        showMessage("You failed! Try again.");
+        resetButton.css('display', 'block');
+      }
     }, 1000);
   }
 }
@@ -64,18 +72,51 @@ function stopTimer() {
 }
 
 function checkWin() {
-  const matchedCards = document.querySelectorAll('.memory-card.flip');
+  const matchedCards = $('.memory-card.flip');
   if (matchedCards.length === cards.length) {
     stopTimer();
-    // Show a message or perform any other action to indicate that the player has won
+    showMessage("Congratulations! You won!");
+    resetButton.css('display', 'block');
   }
 }
 
-(function shuffle() {
-  cards.forEach(card => {
-    let randomPos = Math.floor(Math.random() * 12);
-    card.style.order = randomPos;
+function formatTime(seconds) {
+  const remainingSeconds = 60 - seconds;
+  return padZero(remainingSeconds);
+}
+
+function padZero(value) {
+  return value < 10 ? `0${value}` : value;
+}
+
+function showMessage(text) {
+  messageElement.text(text);
+  messageElement.css('display', 'block');
+}
+
+function resetGame() {
+  stopTimer();
+  //resetButton.css('display', 'none');
+  messageElement.css('display', 'none');
+  seconds = 0;
+  timerElement.text(formatTime(seconds));
+  cards.each(function() {
+    $(this).removeClass('flip');
+    $(this).on('click', flipCard);
   });
+  shuffleCards();
+}
+
+function shuffleCards() {
+  cards.each(function() {
+    let randomPos = Math.floor(Math.random() * 12);
+    $(this).css('order', randomPos);
+  });
+}
+
+(function initializeGame() {
+  resetButton.on('click', resetGame);
+  shuffleCards();
 })();
 
-cards.forEach(card => card.addEventListener('click', flipCard));
+cards.on('click', flipCard);
