@@ -2,6 +2,7 @@ const cards = $('.memory-card');
 const timerElement = $('#timer');
 const messageElement = $('#message');
 const resetButton = $('#reset-button');
+const progressBar = $('#progress-bar-fill');
 
 let hasFlippedCard = false;
 let lockBoard = false;
@@ -10,7 +11,7 @@ let timerInterval;
 let seconds = 0;
 
 function flipCard() {
-  if (lockBoard || this === firstCard) return;
+  if (lockBoard || $(this).hasClass('flip')) return;
 
   $(this).addClass('flip');
 
@@ -35,6 +36,7 @@ function disableCards() {
   $(secondCard).off('click', flipCard);
 
   resetBoard();
+  updateProgress();
   checkWin();
 }
 
@@ -105,6 +107,7 @@ function resetGame() {
     //$(this).on('click', flipCard);
   });
   shuffleCards();
+  updateProgress();
 }
 
 function shuffleCards() {
@@ -112,6 +115,12 @@ function shuffleCards() {
     let randomPos = Math.floor(Math.random() * 12);
     $(this).css('order', randomPos);
   });
+}
+
+function updateProgress() {
+  const matchedCards = $('.memory-card.flip');
+  const progressPercentage = (matchedCards.length / cards.length) * 100;
+  progressBar.css('width', progressPercentage + '%');
 }
 
 (function initializeGame() {
