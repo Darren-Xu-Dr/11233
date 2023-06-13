@@ -102,7 +102,7 @@ function resetGame() {
   timerElement.text(formatTime(seconds));
   cards.each(function() {
     $(this).removeClass('flip');
-    $(this).on('click', flipCard);
+    //$(this).on('click', flipCard);
   });
   shuffleCards();
 }
