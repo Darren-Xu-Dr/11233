@@ -1,7 +1,8 @@
-const cards = document.querySelectorAll('.memory-card');
-const timerElement = document.getElementById('timer');
-const messageElement = document.getElementById('message');
-const resetButton = document.getElementById('reset-button');
+const cards = $('.memory-card');
+const timerElement = $('#timer');
+const messageElement = $('#message');
+const resetButton = $('#reset-button');
+const progressBar = $('#progress-bar-fill');
 
 let hasFlippedCard = false;
 let lockBoard = false;
@@ -12,7 +13,7 @@ let seconds = 0;
 function flipCard() {
   if (lockBoard || this === firstCard) return;
 
-  this.classList.add('flip');
+  $(this).addClass('flip');
 
   if (!hasFlippedCard) {
     hasFlippedCard = true;
@@ -26,22 +27,23 @@ function flipCard() {
 }
 
 function checkForMatch() {
-  let isMatch = firstCard.dataset.framework === secondCard.dataset.framework;
+  let isMatch = $(firstCard).data('framework') === $(secondCard).data('framework');
   isMatch ? disableCards() : unflipCards();
 }
 
 function disableCards() {
-  firstCard.removeEventListener('click', flipCard);
-  secondCard.removeEventListener('click', flipCard);
+  $(firstCard).off('click', flipCard);
+  $(secondCard).off('click', flipCard);
 
   resetBoard();
+  updateProgress();
   checkWin();
 }
 
 function unflipCards() {
   setTimeout(() => {
-    firstCard.classList.remove('flip');
-    secondCard.classList.remove('flip');
+    $(firstCard).removeClass('flip');
+    $(secondCard).removeClass('flip');
     resetBoard();
   }, 1500);
 }
@@ -55,12 +57,12 @@ function startTimer() {
   if (!timerInterval) {
     timerInterval = setInterval(() => {
       seconds++;
-      timerElement.textContent = formatTime(seconds);
+      timerElement.text(formatTime(seconds));
 
       if (seconds >= 60) {
         stopTimer();
         showMessage("You failed! Try again.");
-        resetButton.style.display = 'block';
+        resetButton.css('display', 'block');
       }
     }, 1000);
   }
@@ -72,11 +74,11 @@ function stopTimer() {
 }
 
 function checkWin() {
-  const matchedCards = document.querySelectorAll('.memory-card.flip');
+  const matchedCards = $('.memory-card.flip');
   if (matchedCards.length === cards.length) {
     stopTimer();
     showMessage("Congratulations! You won!");
-    resetButton.style.display = 'block';
+    resetButton.css('display', 'block');
   }
 }
 
@@ -90,33 +92,40 @@ function padZero(value) {
 }
 
 function showMessage(text) {
-  messageElement.textContent = text;
-  messageElement.style.display = 'block';
+  messageElement.text(text);
+  messageElement.css('display', 'block');
 }
 
 function resetGame() {
   stopTimer();
-  resetButton.style.display = 'none';
-  messageElement.style.display = 'none';
+  //resetButton.css('display', 'none');
+  messageElement.css('display', 'none');
   seconds = 0;
-  timerElement.textContent = formatTime(seconds);
-  cards.forEach(card => {
-    card.classList.remove('flip');
-    card.addEventListener('click', flipCard);
+  timerElement.text(formatTime(seconds));
+  cards.each(function() {
+    $(this).removeClass('flip');
+    //$(this).on('click', flipCard);
   });
   shuffleCards();
+  updateProgress();
 }
 
 function shuffleCards() {
-  cards.forEach(card => {
+  cards.each(function() {
     let randomPos = Math.floor(Math.random() * 12);
-    card.style.order = randomPos;
+    $(this).css('order', randomPos);
   });
 }
 
+function updateProgress() {
+  const matchedCards = $('.memory-card.flip');
+  const progressPercentage = (matchedCards.length / cards.length) * 100;
+  progressBar.css('width', progressPercentage + '%');
+}
+
 (function initializeGame() {
-  resetButton.addEventListener('click', resetGame);
+  resetButton.on('click', resetGame);
   shuffleCards();
 })();
 
-cards.forEach(card => card.addEventListener('click', flipCard));
+cards.on('click', flipCard);
