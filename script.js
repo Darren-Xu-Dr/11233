@@ -62,6 +62,9 @@ function startTimer() {
       if (seconds >= 60) {
         stopTimer();
         showMessage("You failed! Try again.");
+        cards.each(function(){
+          $(this).off('click',flipCard)
+        })
         resetButton.css('display', 'block');
       }
     }, 1000);
