@@ -24,7 +24,7 @@ body {
 }
 
 h1 {
-  
+  color: #009688;
   padding: 1em 0;
 }
 
@@ -94,4 +94,19 @@ h1 {
 .front-face {
   -webkit-transform: rotateY(180deg);
   transform: rotateY(180deg);
+}
+meter {
+  width: 200px;
+}
+#progress-bar {
+  width: 40%;
+  height: 10px;
+  background-color: #ddd;
+  margin-bottom: 20px;
+}
+
+#progress-bar-fill {
+  height: 100%;
+  background-color: #4caf50;
+  width: 0;
 }
